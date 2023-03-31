@@ -30,32 +30,72 @@ countGoodStrings(n, s1, s2, evil): A function to count the number of good string
 Implementation Steps
 
 Level 1 Steps
+
 Start
+
 Hero enters the maze (Level 1)
+
 Level 2 Steps
+
 Define function oddEvenJumps(arr)
+
 Get the length of arr as n
+
 Initialize lists odd and even of length n with all elements set to False
+
 Set the last elements of odd and even lists to True
+
 Create sorted indices based on arr values
-Call makeNext function with sorted indices to get oddNext
+
+Call makeNext function with sorted indices to get oddNext'
+
 Sort the indices in reverse order based on arr values
+
 Call makeNext function with reverse sorted indices to get evenNext
+
 Iterate through arr from the second last element to the first element (in reverse)
+
 If oddNext[i] is not None, set odd[i] to even[oddNext[i]]
+
 If evenNext[i] is not None, set even[i] to odd[evenNext[i]]
+
 Return the sum of odd
+
 Hero starts navigating the maze (Level 2)
+
 Define function countGoodStrings(n, s1, s2, evil)
+
 Initialize a DP table
+
 Define a recursive function count(prefix_len, last_char, is_s1, is_s2)
+
 Check if evil is a substring of the current prefix
+
 Check if the desired prefix length has been reached
+
 Check if the result is memoized
+
 Initialize a variable ans
+
 Iterate through all characters from last_char to 'z'
+
 Check if the current character is less than the corresponding character in s1
+
 Check if the current character is greater than the corresponding character in s2
+
 Call the count function recursively with updated parameters and add the result to ans
+
 Update the memoized result
-Return ans
+
+Call the count function with initial parameters
+Hero unlocks the door to the next room
+End
+Flowchart
+
+Visualize the process through the following flowcharts:
+
+https://postimg.cc/DWQ1y4v6
+
+
+https://postimg.cc/8JhXGz9g
+
