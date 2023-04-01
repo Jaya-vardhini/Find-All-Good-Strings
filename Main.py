@@ -72,7 +72,39 @@ def check_collision(x, y):
             return False
     return True
 
-# Set up keyboard bindings
+def is_door(x, y):
+    # Replace this condition with the actual condition for detecting a door in your maze
+    return x == 100 and y == 100
+
+def go_left():
+    x = player.xcor()
+    y = player.ycor()
+
+    if check_collision(x - 20, y):
+        player.setx(x - 20)
+
+def go_right():
+    x = player.xcor()
+    y = player.ycor()
+
+    if check_collision(x + 20, y):
+        player.setx(x + 20)
+
+def go_up():
+    x = player.xcor()
+    y = player.ycor()
+
+    if check_collision(x, y + 20):
+        player.sety(y + 20)
+
+def go_down():
+    x = player.xcor()
+    y = player.ycor()
+
+    if check_collision(x, y - 20):
+        player.sety(y - 20)
+
+# Keyboard bindings
 wn.listen()
 wn.onkey(go_left, "Left")
 wn.onkey(go_right, "Right")
