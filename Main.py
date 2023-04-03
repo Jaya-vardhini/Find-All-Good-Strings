@@ -1,142 +1,141 @@
-import turtle
-import random
+import os
 
-# The countGoodStrings function provided
+def clear_screen():
+    """Clears the console screen"""
+    os.system('cls' if os.name == 'nt' else 'clear')
+
+def display_menu():
+    """Displays the main menu options"""
+    clear_screen()
+    print("Algorithmic Adventure")
+    print("1. Start Game")
+    print("2. How to Play")
+    print("3. Exit")
+    print("Choices: [1/2/3]")
+
+def how_to_play():
+    """Displays the description of the game and how the level/rank/health system works"""
+    clear_screen()
+    print("Welcome to Algorithmic Adventure!")
+    print("Your goal is to find the hidden treasure by completing various levels of challenges.")
+    print("There are 8 levels in total, and as you complete each level, you will attain a new rank.")
+    print("You start at Rank 1 and can progress up to Rank 8.")
+    print("You have 3 lives to start with. If you fail a level without any remaining lives, it's game over.")
+    print("Good luck!")
+
+def display_level1():
+    """Displays Level 1: Odd-Even Jump"""
+    clear_screen()
+    print("Level 1: Odd-Even Jump")
+    print("Proceed? Y/N")
+    choice = input().lower()
+    if choice == "n":
+        print("You are too scared to proceed. You failed in your quest to find the hidden treasure. Ashamed, you return to your hometown.")
+        input("Press Enter to continue...")
+        display_menu()
+    elif choice == "y":
+        print("You encounter a maze with floor tiles. Some of the tiles are safe but some of them are traps. Tread carefully!")
+        print("The floor tiles are numbered with values like so:")
+        # generate the table here
+        table = [[2, 10, 3], [4, 8, 14], [5, 7, 17]]
+        for row in table:
+            print(*row)
+        print("As an array, this looks like: [5,7,17,4,8,14,2,10,3]")
+        print("You need to enter the correct starting tile that will allow you to safely reach the end of the maze.")
+        correct_tile = 2
+        user_input = input("Enter the correct tile number: ")
+        if user_input == "":
+            print("You proceed to jump around the tiles until you reach the door. You notice that the door is unlocked. You enter through the door.")
+            input("Press Enter to continue...")
+            clear_screen()
+            print("Good job. You cleared Level 1. You earned the Newbie Hero title.")
+            input("Press Enter to continue...")
+            display_menu()
+        elif int(user_input) == correct_tile:
+            clear_screen()
+            print("Good job. You cleared Level 1. You earned the Newbie Hero title.")
+            input("Press Enter to continue...")
+            display_level2()
+        else:
+            clear_screen()
+            print("Game Over")
+            input("Press Enter to continue...")
+            display_menu()
+
+def display_level2():
+    """Displays Level 2: Good Strings"""
+    clear_screen()
+    print("Level 2: Good Strings")
+    print("Proceed? Y/N")
+    choice = input().lower()
+    if choice == "n":
+        print("You are too scared to proceed. You failed in your quest to find the hidden treasure. Ashamed, you return to your hometown.")
+        input("Press Enter to continue...")
+        display_menu()
+    elif choice == "y":
+        get_good_strings()
+        input("Press Enter to continue...")
+        clear_screen()
+        print("Good job. You cleared Level 2. You earned the Master of Strings title.")
+        input("Press Enter to continue...")
+
 def countGoodStrings(n: int, s1: str, s2: str, evil: str) -> int:
-    dp = [[[-1] * 2 for _ in range(26)] for _ in range(n + 1)]
+    mod = 10**9 + 7
 
-    def count(prefix_len, last_char, is_s1, is_s2):
-        if evil in chr(last_char + ord('a')) * prefix_len:
+    m = len(evil)
+    dp = [[[[-1] * (m + 1) for _ in range(2)] for _ in range(n + 1)] for _ in range(27)]
+
+    def dfs(pos: int, prefix_match: int, lower_bound: bool, upper_bound: bool) -> int:
+        if prefix_match == m:
             return 0
-        if prefix_len == n:
+        if pos == n:
             return 1
-        if dp[prefix_len][last_char][is_s1] != -1 and not is_s2:
-            return dp[prefix_len][last_char][is_s1]
+        if dp[prefix_match][pos][prefix_match][int(lower_bound)] != -1 and not upper_bound:
+            return dp[prefix_match][pos][prefix_match][int(lower_bound)]
+
+        lb = ord(s1[pos]) if lower_bound else ord('a')
+        ub = ord(s2[pos]) if upper_bound else ord('z')
+
         ans = 0
-        for i in range(last_char, 26):
-            if not is_s1 and chr(i + ord('a')) < s1[prefix_len]:
-                continue
-            if chr(i + ord('a')) > s2[prefix_len]:
-                break
-            ans = (ans + count(prefix_len + 1, i, is_s1 and chr(i + ord('a')) == s1[prefix_len], is_s2 and chr(i + ord('a')) == s2[prefix_len])) % MOD
-        if not is_s2:
-            dp[prefix_len][last_char][is_s1] = ans
+        for ch in range(lb, ub + 1):
+            new_prefix_match = prefix_match
+            while new_prefix_match >= 0 and evil[new_prefix_match] != chr(ch):
+                new_prefix_match = new_prefix_match - 1
+            new_prefix_match += 1
+
+            ans += dfs(pos + 1, new_prefix_match, lower_bound and ch == lb, upper_bound and ch == ub)
+            ans %= mod
+
+        if not upper_bound:
+            dp[prefix_match][pos][prefix_match][int(lower_bound)] = ans
+
         return ans
 
-    return count(0, 0, True, True)
+    return dfs(0, 0, True, True)
 
-# Set up screen
-wn = turtle.Screen()
-wn.bgcolor("black")
-wn.title("Maze Game")
 
-# Create Pen (for drawing walls)
-pen = turtle.Turtle()
-pen.shape("square")
-pen.color("white")
-pen.speed(0)
-pen.penup()
+def get_good_strings():
+    n = int(input("Enter the length of the string (n): "))
+    s1 = input("Enter the lower bound of the good string (s1): ")
+    s2 = input("Enter the upper bound of the good string (s2): ")
+    evil = input("Enter the forbidden substring (evil): ")
+    
+    good_strings = countGoodStrings(n, s1, s2, evil)
+    print(f"The number of good strings is {good_strings}")
 
-# Create Player
-player = turtle.Turtle()
-player.shape("circle")
-player.color("blue")
-player.speed(0)
-player.penup()
 
-# Draw the maze
-# Add the rest of the code to draw the maze and move the player using arrow keys
-
-# Check if move is valid
-def check_collision(x, y):
-    # Check for collision with walls
-    # Add the rest of the code to check for collision with walls
-
-    # Check for collision with door
-    if is_door(x, y):
-        s1 = "abcdefghijklm"  # Example input string 1
-        s2 = "nopqrstuvwxyz"  # Example input string 2
-        evil = "evil"         # The substring to avoid
-        n = len(s1)
-        good_strings_count = countGoodStrings(n, s1, s2, evil)
-        try:
-            user_input = wn.textinput("Enter the combination", f"Enter the correct combination of letters (total: {good_strings_count}):")
-            if user_input == "your_correct_combination":  # Replace this with the actual correct combination
-                print("Congratulations! You've unlocked the door.")
-                return True
-            else:
-                print("Incorrect combination. Try again.")
-                return False
-        except TypeError:
-            print("You've closed the input box. Try again.")
-            return False
-    return True
-
-def is_door(x, y):
-    # Replace this condition with the actual condition for detecting a door in your maze
-    return x == 100 and y == 100
-
-def go_left():
-    x = player.xcor()
-    y = player.ycor()
-
-    if check_collision(x - 20, y):
-        player.setx(x - 20)
-
-def go_right():
-    x = player.xcor()
-    y = player.ycor()
-
-    if check_collision(x + 20, y):
-        player.setx(x + 20)
-
-def go_up():
-    x = player.xcor()
-    y = player.ycor()
-
-    if check_collision(x, y + 20):
-        player.sety(y + 20)
-
-def go_down():
-    x = player.xcor()
-    y = player.ycor()
-
-    if check_collision(x, y - 20):
-        player.sety(y - 20)
-
-# Keyboard bindings
-wn.listen()
-wn.onkey(go_left, "Left")
-wn.onkey(go_right, "Right")
-wn.onkey(go_up, "Up")
-wn.onkey(go_down, "Down")
-
-# Main game loop
+# main loop
 while True:
-    wn.update()
-
-    # Get the player's current position
-    x = player.xcor()
-    y = player.ycor()
-
-    # Check if the player is at the door
-    if is_door(x, y):
-        s1 = "abcdefghijklm"  # Example input string 1
-        s2 = "nopqrstuvwxyz"  # Example input string 2
-        evil = "evil"         # The substring to avoid
-        n = len(s1)
-        good_strings_count = countGoodStrings(n, s1, s2, evil)
-        try:
-            user_input = wn.textinput("Enter the combination", f"Enter the correct combination of letters (total: {good_strings_count}):")
-            if user_input == "your_correct_combination":  # Replace this with the actual correct combination
-                print("Congratulations! You've unlocked the door.")
-                # Add code here to move the player to the next level or display a victory message
-                break
-            else:
-                print("Incorrect combination. Try again.")
-        except TypeError:
-            print("You've closed the input box. Try again.")
-
-# Close the window after finishing the game
-turtle.done()
-
+    display_menu()
+    choice = input().lower()
+    if choice == "1":
+        display_level1()
+    elif choice == "2":
+        how_to_play()
+        input("Press Enter to continue...")
+        display_menu()
+    elif choice == "3":
+        print("Program Exit")
+        break
+    else:
+        print("Invalid choice. Please choose again.")
